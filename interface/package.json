@@ -2,6 +2,7 @@
   "name": "esp8266-react",
   "version": "0.1.0",
   "private": true,
+  "proxy": "http://192.168.1.130",
   "dependencies": {
     "@material-ui/core": "^4.7.0",
     "@material-ui/icons": "^4.5.1",
