@@ -15,6 +15,8 @@ void SystemStatus::systemStatus(AsyncWebServerRequest* request) {
 #elif defined(ESP_PLATFORM)
   root["esp_platform"] = "esp32";
 #endif
+  root["serial_number"] = ESP.getChipId();
+  root["firmware_version"] = FIRMWARE_VERSION ", " __DATE__ " " __TIME__;
   root["cpu_freq_mhz"] = ESP.getCpuFreqMHz();
   root["free_heap"] = ESP.getFreeHeap();
   root["sketch_size"] = ESP.getSketchSize();

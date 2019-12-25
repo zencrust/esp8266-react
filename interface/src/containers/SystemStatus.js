@@ -13,7 +13,8 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogContent from '@material-ui/core/DialogContent';
-
+import SettingsEthernetIcon from '@material-ui/icons/SettingsEthernet';
+import ReceiptIcon from '@material-ui/icons/Receipt';
 import DevicesIcon from '@material-ui/icons/Devices';
 import MemoryIcon from '@material-ui/icons/Memory';
 import ShowChartIcon from '@material-ui/icons/ShowChart';
@@ -61,6 +62,24 @@ class SystemStatus extends Component {
             </Avatar>
           </ListItemAvatar>
           <ListItemText primary="Platform" secondary={data.esp_platform} />
+        </ListItem>
+        <Divider variant="inset" component="li" />
+        <ListItem >
+          <ListItemAvatar>
+            <Avatar>
+              <ReceiptIcon />
+            </Avatar>
+          </ListItemAvatar>
+          <ListItemText primary="Serial Number" secondary={data.serial_number} />
+        </ListItem>
+        <Divider variant="inset" component="li" />
+        <ListItem >
+          <ListItemAvatar>
+            <Avatar>
+              <SettingsEthernetIcon />
+            </Avatar>
+          </ListItemAvatar>
+          <ListItemText primary="Firmware version" secondary={data.firmware_version} />
         </ListItem>
         <Divider variant="inset" component="li" />
         <ListItem >
