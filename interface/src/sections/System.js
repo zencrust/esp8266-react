@@ -7,6 +7,7 @@ import Tab from '@material-ui/core/Tab';
 import AuthenticatedRoute from '../authentication/AuthenticatedRoute';
 import MenuAppBar from '../components/MenuAppBar';
 import OTASettings from '../containers/OTASettings';
+import FirmwareUpgrade from '../containers/FirmwareUpgrade';
 import SystemStatus from '../containers/SystemStatus';
 import { withAuthenticationContext } from '../authentication/Context.js';
 
@@ -23,10 +24,14 @@ class System extends Component {
         <Tabs value={this.props.match.url} onChange={this.handleTabChange} indicatorColor="primary" textColor="primary" variant="fullWidth">
           <Tab value="/system/status" label="System Status" />
           <Tab value="/system/ota" label="OTA Settings" disabled={!authenticationContext.isAdmin()} />
+          <Tab value="/system/update" label="Update Firmware" disabled={!authenticationContext.isAdmin()} />
+
         </Tabs>
         <Switch>
           <AuthenticatedRoute exact={true} path="/system/status" component={SystemStatus} />
           <AuthenticatedRoute exact={true} path="/system/ota" component={OTASettings} />
+          <AuthenticatedRoute exact={true} path="/system/update" component={FirmwareUpgrade} />
+
           <Redirect to="/system/status" />
         </Switch>
       </MenuAppBar>

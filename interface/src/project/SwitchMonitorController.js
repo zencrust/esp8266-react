@@ -57,7 +57,7 @@ function SwitchMonitorControllerForm(props) {
         <TextValidator
           validators={['required', 'isNumber', 'minNumber:0', 'maxNumber:20']}
           errorMessages={['Pin number is required', 'Pin number must be a number', 'DIO starts from 0', "Max DIO is 20"]}
-          name="SwitchMonitorPin"
+          name="switchPin"
           label="Switch Monitor Pin"
           className={classes.textField}
           value={Settings.switchPin}
@@ -68,7 +68,7 @@ function SwitchMonitorControllerForm(props) {
         <TextValidator
           validators={['required', 'isNumber', 'minNumber:0', 'maxNumber:20']}
           errorMessages={['Lamp Pin number is required', 'Lamp Pin number must be a number', 'DIO starts from 0', "Max DIO is 20"]}
-          name="LampControlPin"
+          name="lampPin"
           label="Lamp Control Pin"
           className={classes.textField}
           value={Settings.lampPin}
@@ -79,7 +79,7 @@ function SwitchMonitorControllerForm(props) {
         <TextValidator
           validators={[]}
           errorMessages={[]}
-          name="switchMqttId"
+          name="mqttId"
           label="Switch Mqtt Id"
           className={classes.textField}
           value={Settings.mqttId}
@@ -90,7 +90,7 @@ function SwitchMonitorControllerForm(props) {
         <TextValidator
           validators={[]}
           errorMessages={[]}
-          name="SectionMqttId"
+          name="sectionMqttId"
           label="Section Mqtt Id"
           className={classes.textField}
           value={Settings.sectionMqttId}

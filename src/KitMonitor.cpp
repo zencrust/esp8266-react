@@ -26,7 +26,7 @@ void KitMonitor::loop() {
 }
 
 void KitMonitor::Configure(){
-
+  Serial.println("Configuring switch monitor");
   pinMode(_pin, OUTPUT);
   pinMode(_lampPin, OUTPUT);
   digitalWrite(_lampPin, LOW);
@@ -39,14 +39,16 @@ void KitMonitor::Configure(){
                       
   _configured = true;
   _configure = false;
+  switchReleased(_pin);
 }
 
 void KitMonitor::readFromJsonObject(JsonObject& root) {
-  _configure = true;
-  _pin = root["switchPin"] | DEFAULT_SWITCH_PIN;
-  _lampPin = root["lampPin"] | DEFAULT_LAMP_PIN;
+  Serial.println("Kit monitor readFromJsonObject");
+  _pin = root["switchPin"];
+  _lampPin = root["lampPin"];
   _SwitchId = root["mqttId"] | DEFAULT_MQTT_ID;
   _SectionId = root["sectionMqttId"] | DEFAILT_MQTT_SECTION_ID;
+  _configure = true;
 }
 
 void KitMonitor::writeToJsonObject(JsonObject& root) {
@@ -81,7 +83,7 @@ void KitMonitor::switchReleased(uint8_t pinIn)
         digitalWrite(_lampPin, LOW);
     }
 
-    Serial.println("Switch" + _SwitchId + "Released");
+    Serial.println("Switch Released");
     this->sendMessage(0);
 }
 
