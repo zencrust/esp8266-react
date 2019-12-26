@@ -4,13 +4,12 @@ import { Redirect, Switch } from 'react-router-dom'
 import { PROJECT_PATH } from '../constants/Env';
 import MenuAppBar from '../components/MenuAppBar';
 import AuthenticatedRoute from '../authentication/AuthenticatedRoute';
-import DemoInformation from './DemoInformation';
-import DemoController from './DemoController';
+import SwitchMonitorController from './SwitchMonitorController';
 
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 
-class DemoProject extends Component {
+class SwitchMonitorProject extends Component {
 
   handleTabChange = (event, path) => {
     this.props.history.push(path);
@@ -18,15 +17,13 @@ class DemoProject extends Component {
 
   render() {
     return (
-      <MenuAppBar sectionTitle="Demo Project">
+      <MenuAppBar sectionTitle="Switch Monitor">
         <Tabs value={this.props.match.url} onChange={this.handleTabChange} indicatorColor="primary" textColor="primary" variant="fullWidth">
-          <Tab value={`/${PROJECT_PATH}/demo/information`} label="Information" />
-          <Tab value={`/${PROJECT_PATH}/demo/controller`} label="Controller" />
+          <Tab value={`/${PROJECT_PATH}/monitor/controller`} label="Controller" />
         </Tabs>
         <Switch>
-          <AuthenticatedRoute exact path={`/${PROJECT_PATH}/demo/information`} component={DemoInformation} />
-          <AuthenticatedRoute exact path={`/${PROJECT_PATH}/demo/controller`} component={DemoController} />
-          <Redirect to={`/${PROJECT_PATH}/demo/information`}  />
+          <AuthenticatedRoute exact path={`/${PROJECT_PATH}/monitor/controller`} component={SwitchMonitorController} />
+          <Redirect to={`/${PROJECT_PATH}/monitor/controller`}  />
         </Switch>
       </MenuAppBar>
     )
@@ -34,4 +31,4 @@ class DemoProject extends Component {
 
 }
 
-export default DemoProject;
+export default SwitchMonitorProject;

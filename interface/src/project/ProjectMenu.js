@@ -15,11 +15,11 @@ class ProjectMenu extends Component {
     const path = this.props.match.url;
     return (
       <List>
-        <ListItem to={`/${PROJECT_PATH}/demo/`} selected={path.startsWith(`/${PROJECT_PATH}/demo/`)} button component={Link}>
+        <ListItem to={`/${PROJECT_PATH}/monitor/`} selected={path.startsWith(`/${PROJECT_PATH}/monitor/`)} button component={Link}>
           <ListItemIcon>
             <SettingsRemoteIcon />
           </ListItemIcon>
-          <ListItemText primary="Demo Project" />
+          <ListItemText primary="Switch Monitor Settings" />
         </ListItem>
       </List>
     )

@@ -1,0 +1,6 @@
+{
+  "switchPin": 4,
+  "lampPin": 13,
+  "mqttId": "Switch Pressed",
+  "sectionMqttId": "dio"
+}

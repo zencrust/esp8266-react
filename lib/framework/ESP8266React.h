@@ -39,6 +39,10 @@ class ESP8266React {
     return &_securitySettingsService;
   }
 
+  MQTTSettings* getMqttSettingsManager() {
+    return &_mqttSettings;
+  }
+
  private:
   SecuritySettingsService _securitySettingsService;
 

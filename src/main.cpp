@@ -1,4 +1,4 @@
-#include <DemoProject.h>
+#include <KitMonitor.h>
 #include <ESP8266React.h>
 #include <FS.h>
 
@@ -6,7 +6,7 @@
 
 AsyncWebServer server(80);
 ESP8266React esp8266React(&server, &SPIFFS);
-DemoProject demoProject = DemoProject(&server, &SPIFFS, esp8266React.getSecurityManager());
+KitMonitor switchMonitor(&server, &SPIFFS, esp8266React.getSecurityManager(), esp8266React.getMqttSettingsManager());
 
 void setup() {
   // start serial and filesystem
@@ -15,11 +15,11 @@ void setup() {
   // start the file system (must be done before starting the framework)
   SPIFFS.begin();
 
-  // start the framework and demo project
+  // start the framework and kit monitor project
   esp8266React.begin();
 
-  // start the demo project
-  demoProject.begin();
+  // start the kit monitor project
+  switchMonitor.begin();
 
   // start the server
   server.begin();
@@ -29,6 +29,6 @@ void loop() {
   // run the framework's loop function
   esp8266React.loop();
 
-  // run the demo project's loop function
-  demoProject.loop();
+  // run the switchMonitor project's loop function
+  switchMonitor.loop();
 }

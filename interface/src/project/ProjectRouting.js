@@ -3,7 +3,7 @@ import { Redirect, Switch } from 'react-router';
 
 import { PROJECT_PATH } from '../constants/Env';
 import AuthenticatedRoute from '../authentication/AuthenticatedRoute';
-import DemoProject from './DemoProject';
+import SwitchMonitorProject from './SwitchMonitorProject';
 
 class ProjectRouting extends Component {
 
@@ -15,14 +15,14 @@ class ProjectRouting extends Component {
           * Add your project page routing below.
           */
         }
-        <AuthenticatedRoute exact path={`/${PROJECT_PATH}/demo/*`} component={DemoProject} />
+        <AuthenticatedRoute exact path={`/${PROJECT_PATH}/monitor/*`} component={SwitchMonitorProject} />
         {
           /*
           * The redirect below caters for the default project route and redirecting invalid paths.
           * The "to" property must match one of the routes above for this to work correctly.
           */
         }
-        <Redirect to={`/${PROJECT_PATH}/demo/`} />
+        <Redirect to={`/${PROJECT_PATH}/monitor/`} />
       </Switch>
     )
   }

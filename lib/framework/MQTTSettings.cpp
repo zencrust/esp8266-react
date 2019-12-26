@@ -102,7 +102,7 @@ void MQTTSettings::onStationModeDisconnected(WiFiEvent_t event, WiFiEventInfo_t 
 }
 #endif
 void MQTTSettings::sendMessage(String function, String channel, String value, bool retained) {
-  if (!_mqttClient.connected()) {
+  if (!_isEnabled || !_mqttClient.connected()) {
     return;
   }
 
