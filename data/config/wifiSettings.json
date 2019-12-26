@@ -1,6 +1,6 @@
 {
-  "ssid": "",
-  "password": "password",
-  "hostname": "esp8266-react",
+  "ssid": "ChillerMonitor",
+  "password": "ChillerMonitor@1",
+  "hostname": "SSASSEMBLY",
   "static_ip_config": false
 }
