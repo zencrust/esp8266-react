@@ -1,0 +1,8 @@
+{
+  "mqttenabled": false,
+  "mqttserver": "smartdashboard.local",
+  "mqttport": 1883,
+  "mqttuserName": "",
+  "mqttpassword": "",
+  "mqttapplicationName":"partmonitor" 
+}

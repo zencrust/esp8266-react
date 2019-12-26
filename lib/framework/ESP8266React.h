@@ -17,9 +17,11 @@
 #include <AuthenticationService.h>
 #include <FS.h>
 #include <NTPSettingsService.h>
+#include <MQTTSettings.h>
 #include <NTPStatus.h>
 #include <OTASettingsService.h>
 #include <RestartService.h>
+#include <FirmwareUploadService.hpp>
 #include <SecuritySettingsService.h>
 #include <SystemStatus.h>
 #include <WiFiScanner.h>
@@ -43,9 +45,12 @@ class ESP8266React {
   WiFiSettingsService _wifiSettingsService;
   APSettingsService _apSettingsService;
   NTPSettingsService _ntpSettingsService;
+  MQTTSettings _mqttSettings;
   OTASettingsService _otaSettingsService;
   RestartService _restartService;
+  FirmwareUploadService _uploadService;
   AuthenticationService _authenticationService;
+  
 
   WiFiScanner _wifiScanner;
   WiFiStatus _wifiStatus;

@@ -23,7 +23,8 @@ import SettingsIcon from '@material-ui/icons/Settings';
 import AccessTimeIcon from '@material-ui/icons/AccessTime';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import SettingsInputAntennaIcon from '@material-ui/icons/SettingsInputAntenna';
-import LockIcon from '@material-ui/icons/Lock';
+import SecurityIcon from '@material-ui/icons/Security';
+import AccountTreeIcon from '@material-ui/icons/AccountTree';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
@@ -138,9 +139,15 @@ class MenuAppBar extends React.Component {
             </ListItemIcon>
             <ListItemText primary="Network Time" />
           </ListItem>
+          <ListItem to='/mqtt/' selected={path.startsWith('/mqtt/')} button component={Link}>
+            <ListItemIcon>
+              <AccountTreeIcon />
+            </ListItemIcon>
+            <ListItemText primary="MQTT Configuration" />
+          </ListItem>
           <ListItem to='/security/' selected={path.startsWith('/security/')} button component={Link} disabled={!authenticationContext.isAdmin()}>
             <ListItemIcon>
-              <LockIcon />
+              <SecurityIcon />
             </ListItemIcon>
             <ListItemText primary="Security" />
           </ListItem>

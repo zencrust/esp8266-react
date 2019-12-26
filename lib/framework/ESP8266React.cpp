@@ -5,8 +5,10 @@ ESP8266React::ESP8266React(AsyncWebServer* server, FS* fs) :
     _wifiSettingsService(server, fs, &_securitySettingsService),
     _apSettingsService(server, fs, &_securitySettingsService),
     _ntpSettingsService(server, fs, &_securitySettingsService),
+    _mqttSettings(server, fs, &_securitySettingsService),
     _otaSettingsService(server, fs, &_securitySettingsService),
     _restartService(server, &_securitySettingsService),
+    _uploadService(server, &_securitySettingsService),
     _authenticationService(server, &_securitySettingsService),
     _wifiScanner(server, &_securitySettingsService),
     _wifiStatus(server, &_securitySettingsService),
@@ -46,6 +48,7 @@ void ESP8266React::begin() {
   _apSettingsService.begin();
   _ntpSettingsService.begin();
   _otaSettingsService.begin();
+  _mqttSettings.begin();
 }
 
 void ESP8266React::loop() {
@@ -53,4 +56,5 @@ void ESP8266React::loop() {
   _apSettingsService.loop();
   _ntpSettingsService.loop();
   _otaSettingsService.loop();
+  _mqttSettings.loop();
 }
