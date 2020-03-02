@@ -1,20 +1,21 @@
 #ifndef NTPStatus_h
 #define NTPStatus_h
 
-#if defined(ESP8266)
+#include <time.h>
+#ifdef ESP32
+#include <WiFi.h>
+#include <AsyncTCP.h>
+#include <lwip/apps/sntp.h>
+#elif defined(ESP8266)
 #include <ESP8266WiFi.h>
 #include <ESPAsyncTCP.h>
-#elif defined(ESP_PLATFORM)
-#include <AsyncTCP.h>
-#include <WiFi.h>
+#include <sntp.h>
 #endif
 
 #include <ArduinoJson.h>
 #include <AsyncJson.h>
 #include <ESPAsyncWebServer.h>
-#include <NtpClientLib.h>
 #include <SecurityManager.h>
-#include <TimeLib.h>
 
 #define MAX_NTP_STATUS_SIZE 1024
 #define NTP_STATUS_SERVICE_PATH "/rest/ntpStatus"
