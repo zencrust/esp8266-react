@@ -15,6 +15,7 @@ void KitMonitor::loop() {
   if(_configure){
     Configure();
   }
+  
   if(_configured){
     auto current_time = millis();
     if((current_time - _lastUpdate) > 1000){
@@ -29,8 +30,10 @@ void KitMonitor::Configure(){
   Serial.println("Configuring switch monitor");
   pinMode(_pin, OUTPUT);
   pinMode(_lampPin, OUTPUT);
+  pinMode(_ledPin, OUTPUT);
+
   digitalWrite(_lampPin, LOW);
-  
+  digitalWrite(_ledPin, LOW);
   _switchDebounced.registerCallbacks(
                                   std::bind(&KitMonitor::switchPressed, this, std::placeholders::_1),
                                   std::bind(&KitMonitor::switchReleased, this, std::placeholders::_1),

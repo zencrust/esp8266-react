@@ -27,14 +27,17 @@ void MQTTSettings::loop() {
   }
 
   if (!WiFi.isConnected()) {
+    digitalWrite(12, HIGH);
     return;
   }
 
   if (_reconfigureMQTT || !_mqttClient.connected()) {
+    digitalWrite(12, HIGH);
     _reconfigureMQTT = false;
     configureMQTT();
   }
   if (!_reconfigureMQTT) {
+    digitalWrite(12, LOW);
     _mqttClient.loop();
   }
 }

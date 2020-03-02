@@ -5,6 +5,7 @@
 #include <MQTTSettings.h>
 
 #define DEFAULT_SWITCH_PIN 4
+#define DEFAULT_LED_PIN 12
 #define DEFAULT_LAMP_PIN 13
 #define DEFAULT_MQTT_ID "Switch Pressed"
 #define DEFAILT_MQTT_SECTION_ID "dio"
@@ -29,6 +30,7 @@ class KitMonitor : public AdminSettingsService {
   bool _configured = false;
   uint8_t _pin = DEFAULT_SWITCH_PIN;
   uint8_t _lampPin = DEFAULT_LAMP_PIN;
+  uint8_t _ledPin = DEFAULT_LED_PIN;
   String _SwitchId = DEFAULT_MQTT_ID;
   String _SectionId = DEFAILT_MQTT_SECTION_ID;
   InputDebounce _switchDebounced;
