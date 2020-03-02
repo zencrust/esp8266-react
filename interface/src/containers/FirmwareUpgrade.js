@@ -7,7 +7,7 @@ import Button from '@material-ui/core/Button';
 import UpdateIcon from '@material-ui/icons/Update';
 import { withSnackbar } from 'notistack';
 import { redirectingAuthorizedFetch } from '../authentication/Authentication';
-import axios from 'axios';
+// import axios from 'axios';
 
 class FirmwareUpgrade extends Component {
 

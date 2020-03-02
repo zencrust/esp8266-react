@@ -15,6 +15,10 @@
 
 #define AP_DEFAULT_SSID "ssid"
 #define AP_DEFAULT_PASSWORD "password"
+static const IPAddress local_ip(192, 168, 1, 31);
+static const IPAddress gateway(192, 168, 1, 1);
+static const IPAddress subnet(255, 255, 255, 0);
+
 
 #define AP_SETTINGS_FILE "/config/apSettings.json"
 #define AP_SETTINGS_SERVICE_PATH "/rest/apSettings"

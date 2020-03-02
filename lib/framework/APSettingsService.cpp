@@ -26,6 +26,7 @@ void APSettingsService::manageAP() {
   WiFiMode_t currentWiFiMode = WiFi.getMode();
   if (_provisionMode == AP_MODE_ALWAYS || (_provisionMode == AP_MODE_DISCONNECTED && WiFi.status() != WL_CONNECTED)) {
     if (currentWiFiMode == WIFI_OFF || currentWiFiMode == WIFI_STA) {
+
       startAP();
     }
   } else {
@@ -38,6 +39,7 @@ void APSettingsService::manageAP() {
 void APSettingsService::startAP() {
   Serial.println("Starting software access point");
   WiFi.softAP(_ssid.c_str(), _password.c_str());
+  WiFi.softAPConfig(local_ip, gateway, subnet);
   if (!_dnsServer) {
     IPAddress apIp = WiFi.softAPIP();
     Serial.print("Starting captive portal on ");
