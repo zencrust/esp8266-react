@@ -19,7 +19,7 @@ class ProjectMenu extends Component {
           <ListItemIcon>
             <SettingsRemoteIcon />
           </ListItemIcon>
-          <ListItemText primary="Switch Monitor Settings" />
+          <ListItemText primary="Switch Settings" />
         </ListItem>
       </List>
     )
