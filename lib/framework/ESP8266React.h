@@ -3,19 +3,19 @@
 
 #include <Arduino.h>
 
-#if defined(ESP8266)
-#include <ESP8266WiFi.h>
-#include <ESPAsyncTCP.h>
-#elif defined(ESP_PLATFORM)
+#ifdef ESP32
 #include <AsyncTCP.h>
 #include <SPIFFS.h>
 #include <WiFi.h>
+#elif defined(ESP8266)
+#include <ESP8266WiFi.h>
+#include <ESPAsyncTCP.h>
+#include <FS.h>
 #endif
 
 #include <APSettingsService.h>
 #include <APStatus.h>
 #include <AuthenticationService.h>
-#include <FS.h>
 #include <NTPSettingsService.h>
 #include <MQTTSettings.h>
 #include <NTPStatus.h>
@@ -27,6 +27,10 @@
 #include <WiFiScanner.h>
 #include <WiFiSettingsService.h>
 #include <WiFiStatus.h>
+
+#ifdef PROGMEM_WWW
+#include <WWWData.h>
+#endif
 
 class ESP8266React {
  public:
@@ -42,10 +46,28 @@ class ESP8266React {
   MQTTSettings* getMqttSettingsManager() {
     return &_mqttSettings;
   }
+   SettingsService<SecuritySettings>* getSecuritySettingsService() {
+    return &_securitySettingsService;
+  }
+
+  SettingsService<WiFiSettings>* getWiFiSettingsService() {
+    return &_wifiSettingsService;
+  }
+
+  SettingsService<APSettings>* getAPSettingsService() {
+    return &_apSettingsService;
+  }
+
+  SettingsService<NTPSettings>* getNTPSettingsService() {
+    return &_ntpSettingsService;
+  }
+
+  SettingsService<OTASettings>* getOTASettingsService() {
+    return &_otaSettingsService;
+  }
 
  private:
   SecuritySettingsService _securitySettingsService;
-
   WiFiSettingsService _wifiSettingsService;
   APSettingsService _apSettingsService;
   NTPSettingsService _ntpSettingsService;
@@ -53,6 +75,7 @@ class ESP8266React {
   OTASettingsService _otaSettingsService;
   RestartService _restartService;
   FirmwareUploadService _uploadService;
+
   AuthenticationService _authenticationService;
   
 

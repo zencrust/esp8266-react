@@ -19,7 +19,7 @@ MQTTSettings::MQTTSettings(AsyncWebServer* server, FS* fs, SecurityManager* secu
 }
 
 void MQTTSettings::loop() {
-  if (!_isEnabled) {
+  if (!_settings.enabled) {
     if (_mqttClient.connected()) {
       _mqttClient.disconnect();
     }
@@ -48,40 +48,40 @@ void MQTTSettings::loop() {
 }
 
 void MQTTSettings::readFromJsonObject(JsonObject& root) {
-  _isEnabled = root["mqttenabled"];
-  _server = root["mqttserver"] | MQTT_SETTINGS_SERVICE_DEFAULT_SERVER;
-  _port = root["mqttport"];
-  _userName = root["mqttuserName"] | MQTT_SETTINGS_SERVICE_DEFAULT_USERNAME;
-  _password = root["mqttpassword"] | MQTT_SETTINGS_SERVICE_DEFAULT_PASSWORD;
-  _applicationName = root["mqttapplicationName"] | MQTT_SETTINGS_SERVICE_DEFAULT_APPLICATION_NAME;
+  _settings.enabled = root["mqttenabled"];
+  _settings.server = root["mqttserver"] | MQTT_SETTINGS_SERVICE_DEFAULT_SERVER;
+  _settings.port = root["mqttport"];
+  _settings.userName = root["mqttuserName"] | MQTT_SETTINGS_SERVICE_DEFAULT_USERNAME;
+  _settings.password = root["mqttpassword"] | MQTT_SETTINGS_SERVICE_DEFAULT_PASSWORD;
+  _settings.applicationName = root["mqttapplicationName"] | MQTT_SETTINGS_SERVICE_DEFAULT_APPLICATION_NAME;
 
   // validate server is specified, resorting to default
-  _server.trim();
-  if (!_server) {
-    _server = MQTT_SETTINGS_SERVICE_DEFAULT_SERVER;
+  _settings.server.trim();
+  if (!_settings.server) {
+    _settings.server = MQTT_SETTINGS_SERVICE_DEFAULT_SERVER;
   }
 
   // make sure interval is in bounds
-  if (_port < MQTT_SETTINGS_MIN_PORT) {
-    _port = MQTT_SETTINGS_MIN_PORT;
-  } else if (_port > MQTT_SETTINGS_MAX_PORT) {
-    _port = MQTT_SETTINGS_MAX_PORT;
+  if (_settings.port < MQTT_SETTINGS_MIN_PORT) {
+    _settings.port = MQTT_SETTINGS_MIN_PORT;
+  } else if (_settings.port > MQTT_SETTINGS_MAX_PORT) {
+    _settings.port = MQTT_SETTINGS_MAX_PORT;
   }
 
-  _applicationName.trim();
-  if (!_applicationName) {
-    _applicationName = MQTT_SETTINGS_SERVICE_DEFAULT_APPLICATION_NAME;
+  _settings.applicationName.trim();
+  if (!_settings.applicationName) {
+    _settings.applicationName = MQTT_SETTINGS_SERVICE_DEFAULT_APPLICATION_NAME;
   }
 }
 
 void MQTTSettings::writeToJsonObject(JsonObject& root) {
-  root["mqttenabled"] = _isEnabled;
-  root["mqttserver"] = _server;
-  root["mqttport"] = _port;
-  root["mqttuserName"] = _userName;
-  root["mqttpassword"] = _password;
-  root["mqttapplicationName"] = _applicationName;
-  root["mqttconnectionState"] = _isEnabled ? _mqttClient.state() : -100;
+  root["mqttenabled"] = _settings.enabled;
+  root["mqttserver"] = _settings.server;
+  root["mqttport"] = _settings.port;
+  root["mqttuserName"] = _settings.userName;
+  root["mqttpassword"] = _settings.password;
+  root["mqttapplicationName"] = _settings.applicationName;
+  root["mqttconnectionState"] = _settings.enabled ? _mqttClient.state() : -100;
 }
 
 void MQTTSettings::onConfigUpdated() {
@@ -110,11 +110,11 @@ void MQTTSettings::onStationModeDisconnected(WiFiEvent_t event, WiFiEventInfo_t 
 }
 #endif
 void MQTTSettings::sendMessage(String function, String channel, String value, bool retained) {
-  if (!_isEnabled || !_mqttClient.connected()) {
+  if (!_settings.enabled || !_mqttClient.connected()) {
     return;
   }
 
-  String topic_buf = _applicationName + "/" + WiFi.hostname()
+  String topic_buf = _settings.applicationName + "/" + WiFi.hostname()
     +'/' + function + '/' + channel;
   _mqttClient.publish(topic_buf.c_str(), String(value).c_str(), retained);
 }
@@ -130,7 +130,7 @@ uint8_t RssiToPercentage(int dBm)
 
 void MQTTSettings::sendWifiRSSI() {
   auto rssi = RssiToPercentage(WiFi.RSSI());
-  String topic_buf = _applicationName + "/" + WiFi.hostname() +  "/" + TAG_WIFI_SIGNAL;
+  String topic_buf = _settings.applicationName + "/" + WiFi.hostname() +  "/" + TAG_WIFI_SIGNAL;
   _mqttClient.publish(topic_buf.c_str(), String(rssi).c_str(), false);
 }
 
@@ -140,21 +140,21 @@ void MQTTSettings::configureMQTT() {
   if (_mqttClient.connected()) {
     _mqttClient.disconnect();
   }
-  _mqttClient.setServer(_server.c_str(), _port);
+  _mqttClient.setServer(_settings.server.c_str(), _settings.port);
   String hostname = WiFi.hostname();
-  String willMessage = _applicationName + "/" + hostname + "/" + "heartbeat";
+  String willMessage = _settings.applicationName + "/" + hostname + "/" + "heartbeat";
   boolean result;
   Serial.println(hostname);
-  Serial.println(_server);
-  Serial.println(_port);
+  Serial.println(_settings.server);
+  Serial.println(_settings.port);
 
-  if (_userName != "" || _password != "") {
+  if (_settings.userName != "" || _settings.password != "") {
     Serial.println("mqtt connection with autentication");
-    Serial.println(_userName);
-    Serial.println(_password);
+    Serial.println(_settings.userName);
+    Serial.println(_settings.password);
 
     result = _mqttClient.connect(
-        hostname.c_str(), _userName.c_str(), _password.c_str(), willMessage.c_str(), MQTTQOS0, false, "Disconnected");
+        hostname.c_str(), _settings.userName.c_str(), _settings.password.c_str(), willMessage.c_str(), MQTTQOS0, false, "Disconnected");
 
   } else {
     Serial.println("mqtt connection without autentication");

@@ -21,7 +21,17 @@
 #define MQTT_SETTINGS_FILE "/config/mqttSettings.json"
 #define MQTT_SETTINGS_SERVICE_PATH "/rest/mqttSettings"
 
-class MQTTSettings : public AdminSettingsService {
+class MQTTStatus {
+ public:
+  bool enabled;
+  String server;
+  int port;
+  String userName;
+  String password;
+  String applicationName;
+};
+
+class MQTTSettings : public AdminSettingsService<MQTTStatus> {
  public:
   MQTTSettings(AsyncWebServer* server, FS* fs, SecurityManager* securityManager);
   void loop();
@@ -33,15 +43,9 @@ class MQTTSettings : public AdminSettingsService {
   void onConfigUpdated();
 
  private:
-  String _server;
-  int _port;
-  String _userName;
-  String _password;
-  String _applicationName;
   WiFiClient _espClient;
   PubSubClient _mqttClient;
   bool _reconfigureMQTT = false;
-  bool _isEnabled = false;
   unsigned long _lastUpdateTime = 0;
 
 #if defined(ESP8266)

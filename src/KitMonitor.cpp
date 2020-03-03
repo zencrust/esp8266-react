@@ -3,12 +3,18 @@
 KitMonitor::KitMonitor(AsyncWebServer* server, FS* fs, SecurityManager* securityManager, MQTTSettings* mqttManager) :
     AdminSettingsService(server, fs, securityManager, KITMONITOR_SETTINGS_PATH, KITMONITOR_SETTINGS_FILE),
     _mqttManager(mqttManager),
-    _switchDebounced(_pin, DEBOUNCE_DELAY, InputDebounce::PIM_INT_PULL_UP_RES, 0,
+    _switchDebounced(_settings.switchPin, DEBOUNCE_DELAY, InputDebounce::PIM_INT_PULL_UP_RES, 0,
                       InputDebounce::ST_NORMALLY_CLOSED)
 {
 }
 
+
 KitMonitor::~KitMonitor() {
+}
+
+void KitMonitor::begin(){
+  _switchDebounced.setup(_settings.switchPin, DEBOUNCE_DELAY, InputDebounce::PIM_INT_PULL_UP_RES, 0,
+                  InputDebounce::ST_NORMALLY_CLOSED);
 }
 
 void KitMonitor::loop() {
@@ -30,11 +36,11 @@ void KitMonitor::Configure(){
   Serial.println("Configuring switch monitor");
   // pinMode(_pin, INPUT);
 
-  pinMode(_lampPin, OUTPUT);
-  pinMode(_ledPin, OUTPUT);
+  pinMode(_settings.lampPin, OUTPUT);
+  pinMode(_settings.ledPin, OUTPUT);
 
-  digitalWrite(_lampPin, LOW);
-  digitalWrite(_ledPin, HIGH);
+  digitalWrite(_settings.lampPin, LOW);
+  digitalWrite(_settings.ledPin, HIGH);
   _switchDebounced.registerCallbacks(
                                   std::bind(&KitMonitor::switchPressed, this, std::placeholders::_1),
                                   std::bind(&KitMonitor::switchReleased, this, std::placeholders::_1),
@@ -43,29 +49,31 @@ void KitMonitor::Configure(){
                       
   _configured = true;
   _configure = false;
-  switchReleased(_pin);
+  switchReleased(_settings.switchPin);
 }
 
 void KitMonitor::readFromJsonObject(JsonObject& root) {
   Serial.println("Kit monitor readFromJsonObject");
-  _pin = root["switchPin"];
-  _lampPin = root["lampPin"];
-  _SwitchId = root["mqttId"] | DEFAULT_MQTT_ID;
-  _SectionId = root["sectionMqttId"] | DEFAILT_MQTT_SECTION_ID;
+  _settings.switchPin = root["switchPin"];
+  _settings.lampPin = root["lampPin"];
+  _settings.ledPin = root["ledPin"];
+  _settings.mqttId = root["mqttId"] | DEFAULT_MQTT_ID;
+  _settings.sectionMqttId = root["sectionMqttId"] | DEFAILT_MQTT_SECTION_ID;
   _configure = true;
 }
 
 void KitMonitor::writeToJsonObject(JsonObject& root) {
   // connection settings
-  root["switchPin"] = _pin;
-  root["lampPin"] = _lampPin;
-  root["mqttId"] = _SwitchId;
-  root["sectionMqttId"] = _SectionId;
+  root["switchPin"] = _settings.switchPin;
+  root["lampPin"] = _settings.lampPin;
+  root["ledPin"] = _settings.ledPin ? _settings.ledPin: DEFAULT_LED_PIN;
+  root["mqttId"] = _settings.mqttId;
+  root["sectionMqttId"] = _settings.sectionMqttId;
 }
 
 void KitMonitor::switchPressed(uint8_t pinIn)
 {
-    digitalWrite(_lampPin, HIGH);
+    digitalWrite(_settings.lampPin, HIGH);
     Serial.println("Switch" + String(pinIn) + "Pressed");
     this->sendMessage(1);
 }
@@ -84,7 +92,7 @@ void KitMonitor::switchReleased(uint8_t pinIn)
 {
     if (_switchDebounced.isReleased())
     {
-        digitalWrite(_lampPin, LOW);
+        digitalWrite(_settings.lampPin, LOW);
     }
 
     Serial.println("Switch Released");
@@ -92,6 +100,6 @@ void KitMonitor::switchReleased(uint8_t pinIn)
 }
 
 void KitMonitor::sendMessage(int duration){
-    _mqttManager->sendMessage(_SectionId, _SwitchId, String(duration), false);
+    _mqttManager->sendMessage(_settings.sectionMqttId, _settings.mqttId, String(duration), false);
 }
 

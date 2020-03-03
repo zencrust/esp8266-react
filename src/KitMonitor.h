@@ -17,22 +17,27 @@
 #define KITMONITOR_SETTINGS_PATH "/rest/kitMonitor"
 #include "InputDebounce.h"
 
-class KitMonitor : public AdminSettingsService {
+class kitMonitorSettings{
+public:
+  uint8_t switchPin = DEFAULT_SWITCH_PIN;
+  uint8_t lampPin = DEFAULT_LAMP_PIN;
+  uint8_t ledPin = DEFAULT_LED_PIN;
+
+  String mqttId = DEFAULT_MQTT_ID;
+  String sectionMqttId = DEFAILT_MQTT_SECTION_ID;
+};
+
+class KitMonitor : public AdminSettingsService<kitMonitorSettings> {
  public:
   KitMonitor(AsyncWebServer* server, FS* fs, SecurityManager* securityManager, MQTTSettings* mqttManager);
   ~KitMonitor();
-
+  void begin();
   void loop();
 
  private:
   MQTTSettings* _mqttManager;
   bool _configure = false;
   bool _configured = false;
-  uint8_t _pin = DEFAULT_SWITCH_PIN;
-  uint8_t _lampPin = DEFAULT_LAMP_PIN;
-  uint8_t _ledPin = DEFAULT_LED_PIN;
-  String _SwitchId = DEFAULT_MQTT_ID;
-  String _SectionId = DEFAILT_MQTT_SECTION_ID;
   InputDebounce _switchDebounced;
   unsigned long _lastUpdate = 0;
 
