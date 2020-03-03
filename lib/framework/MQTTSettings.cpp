@@ -38,6 +38,11 @@ void MQTTSettings::loop() {
   }
   if (!_reconfigureMQTT) {
     digitalWrite(12, LOW);
+    auto timenow = millis();
+    if((timenow - _lastUpdateTime) > 5000) {
+      sendWifiRSSI();
+      _lastUpdateTime = timenow;
+    }
     _mqttClient.loop();
   }
 }
@@ -109,10 +114,26 @@ void MQTTSettings::sendMessage(String function, String channel, String value, bo
     return;
   }
 
-  String topic_buf = _applicationName + "/" + WiFi.hostname();
-  +'/' + function + '/' + channel;
+  String topic_buf = _applicationName + "/" + WiFi.hostname()
+    +'/' + function + '/' + channel;
   _mqttClient.publish(topic_buf.c_str(), String(value).c_str(), retained);
 }
+
+uint8_t RssiToPercentage(int dBm)
+{
+    if (dBm <= -100)
+        return 0;
+    if (dBm >= -50)
+        return 100;
+    return 2 * (dBm + 100);
+}
+
+void MQTTSettings::sendWifiRSSI() {
+  auto rssi = RssiToPercentage(WiFi.RSSI());
+  String topic_buf = _applicationName + "/" + WiFi.hostname() +  "/" + TAG_WIFI_SIGNAL;
+  _mqttClient.publish(topic_buf.c_str(), String(rssi).c_str(), false);
+}
+
 
 void MQTTSettings::configureMQTT() {
   Serial.println("Configuring mqtt...");

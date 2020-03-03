@@ -28,12 +28,13 @@ void KitMonitor::loop() {
 
 void KitMonitor::Configure(){
   Serial.println("Configuring switch monitor");
-  pinMode(_pin, OUTPUT);
+  // pinMode(_pin, INPUT);
+
   pinMode(_lampPin, OUTPUT);
   pinMode(_ledPin, OUTPUT);
 
   digitalWrite(_lampPin, LOW);
-  digitalWrite(_ledPin, LOW);
+  digitalWrite(_ledPin, HIGH);
   _switchDebounced.registerCallbacks(
                                   std::bind(&KitMonitor::switchPressed, this, std::placeholders::_1),
                                   std::bind(&KitMonitor::switchReleased, this, std::placeholders::_1),

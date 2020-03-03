@@ -77,6 +77,7 @@ void APSettingsService::readFromJsonObject(JsonObject& root) {
       _provisionMode = AP_MODE_ALWAYS;
   }
   _ssid = root["ssid"] | AP_DEFAULT_SSID;
+  _ssid += ESP.getChipId();
   _password = root["password"] | AP_DEFAULT_PASSWORD;
 }
 

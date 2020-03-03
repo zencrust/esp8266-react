@@ -11,6 +11,7 @@
 #define MQTT_SETTINGS_SERVICE_DEFAULT_USERNAME ""
 #define MQTT_SETTINGS_SERVICE_DEFAULT_PASSWORD ""
 #define MQTT_SETTINGS_SERVICE_DEFAULT_INTERVAL 1883
+#define TAG_WIFI_SIGNAL "wifi Signal Strength"
 
 // min poll delay of 60 secs, max 1 day
 #define MQTT_SETTINGS_MIN_PORT 10
@@ -41,6 +42,7 @@ class MQTTSettings : public AdminSettingsService {
   PubSubClient _mqttClient;
   bool _reconfigureMQTT = false;
   bool _isEnabled = false;
+  unsigned long _lastUpdateTime = 0;
 
 #if defined(ESP8266)
   WiFiEventHandler _onStationModeDisconnectedHandler;
@@ -54,6 +56,7 @@ class MQTTSettings : public AdminSettingsService {
 #endif
 
   void configureMQTT();
+  void sendWifiRSSI();
 };
 
 #endif  // end MQTTService_h
