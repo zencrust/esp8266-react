@@ -38,7 +38,8 @@ void APSettingsService::manageAP() {
 
 void APSettingsService::startAP() {
   Serial.println("Starting software access point");
-  WiFi.softAP(_ssid.c_str(), _password.c_str());
+  auto ssidWithSerial = _ssid + ESP.getChipId();
+  WiFi.softAP(ssidWithSerial.c_str(), _password.c_str());
   WiFi.softAPConfig(local_ip, gateway, subnet);
   if (!_dnsServer) {
     IPAddress apIp = WiFi.softAPIP();
@@ -77,7 +78,6 @@ void APSettingsService::readFromJsonObject(JsonObject& root) {
       _provisionMode = AP_MODE_ALWAYS;
   }
   _ssid = root["ssid"] | AP_DEFAULT_SSID;
-  _ssid += ESP.getChipId();
   _password = root["password"] | AP_DEFAULT_PASSWORD;
 }
 
