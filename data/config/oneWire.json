@@ -1,0 +1,24 @@
+{
+    "enabled": true,
+    "precision": 9,
+    "retires": 5,
+    "sectionMqttId": "temp",
+    "pinConfig":[
+        {
+            "pinNumber": 4,
+            "mqttId": "Tank 1"
+        },
+        {
+            "pinNumber": 13,
+            "mqttId": "Tank 2"
+        },
+        {
+            "pinNumber": 25,
+            "mqttId": "Motor 1"
+        },
+        {
+            "pinNumber": 26,
+            "mqttId": "Motor 2"
+        }
+    ]
+}

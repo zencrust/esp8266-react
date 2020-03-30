@@ -3,7 +3,7 @@ import { Link, withRouter, RouteComponentProps } from 'react-router-dom';
 
 import {List, ListItem, ListItemIcon, ListItemText} from '@material-ui/core';
 import SettingsRemoteIcon from '@material-ui/icons/SettingsRemote';
-
+import ShowChartIcon from '@material-ui/icons/ShowChart';
 import { PROJECT_PATH } from '../api';
 
 class ProjectMenu extends Component<RouteComponentProps> {
@@ -17,6 +17,12 @@ class ProjectMenu extends Component<RouteComponentProps> {
             <SettingsRemoteIcon />
           </ListItemIcon>
           <ListItemText primary="Switch Settings" />
+        </ListItem>
+        <ListItem to={`/temperature/`} selected={path.startsWith(`/temperature/`)} button component={Link}>
+          <ListItemIcon>
+            <ShowChartIcon />
+          </ListItemIcon>
+          <ListItemText primary="Temperature Settings" />
         </ListItem>
       </List>
     )

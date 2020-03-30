@@ -12,10 +12,11 @@ void SystemStatus::systemStatus(AsyncWebServerRequest* request) {
   JsonObject root = response->getRoot();
 #ifdef ESP32
   root["esp_platform"] = "esp32";
+  root["serial_number"] = ESP.getEfuseMac();
 #elif defined(ESP8266)
   root["esp_platform"] = "esp8266";
-#endif
   root["serial_number"] = ESP.getChipId();
+#endif
   root["firmware_version"] = FIRMWARE_VERSION ", " __DATE__ " " __TIME__;
   root["cpu_freq_mhz"] = ESP.getCpuFreqMHz();
   root["free_heap"] = ESP.getFreeHeap();

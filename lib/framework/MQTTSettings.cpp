@@ -113,8 +113,8 @@ void MQTTSettings::sendMessage(String function, String channel, String value, bo
   if (!_settings.enabled || !_mqttClient.connected()) {
     return;
   }
-
-  String topic_buf = _settings.applicationName + "/" + WiFi.hostname()
+  
+  String topic_buf = _settings.applicationName + "/" + HOSTNAME
     +'/' + function + '/' + channel;
   _mqttClient.publish(topic_buf.c_str(), String(value).c_str(), retained);
 }
@@ -130,7 +130,7 @@ uint8_t RssiToPercentage(int dBm)
 
 void MQTTSettings::sendWifiRSSI() {
   auto rssi = RssiToPercentage(WiFi.RSSI());
-  String topic_buf = _settings.applicationName + "/" + WiFi.hostname() +  "/" + TAG_WIFI_SIGNAL;
+  String topic_buf = _settings.applicationName + "/" + HOSTNAME +  "/" + TAG_WIFI_SIGNAL;
   _mqttClient.publish(topic_buf.c_str(), String(rssi).c_str(), false);
 }
 
@@ -141,7 +141,7 @@ void MQTTSettings::configureMQTT() {
     _mqttClient.disconnect();
   }
   _mqttClient.setServer(_settings.server.c_str(), _settings.port);
-  String hostname = WiFi.hostname();
+  String hostname = HOSTNAME;
   String willMessage = _settings.applicationName + "/" + hostname + "/" + "heartbeat";
   boolean result;
   Serial.println(hostname);

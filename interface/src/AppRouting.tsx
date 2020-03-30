@@ -15,6 +15,7 @@ import Security from './security/Security';
 import System from './system/System';
 import MqttConfiguration from './mqtt/MqttConfiguration';
 import { PROJECT_PATH } from './api';
+import OnewireTemperature from './temperature/OnewireTemperature'
 
 class AppRouting extends Component {
 
@@ -28,6 +29,8 @@ class AppRouting extends Component {
         <Switch>
           <UnauthenticatedRoute exact path="/" component={SignIn} />
           <AuthenticatedRoute exact path={`/${PROJECT_PATH}/*`} component={ProjectRouting} />
+          <AuthenticatedRoute exact path="/temperature/*" component={OnewireTemperature} />
+
           <AuthenticatedRoute exact path="/wifi/*" component={WiFiConnection} />         
           <AuthenticatedRoute exact path="/ap/*" component={AccessPoint} />
           <AuthenticatedRoute exact path="/ntp/*" component={NetworkTime} />

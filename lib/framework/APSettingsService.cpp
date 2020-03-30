@@ -41,9 +41,22 @@ void APSettingsService::manageAP() {
   }
 }
 
+#if defined(ESP8266)
+String GetChipSerialId(){
+  return String(ESP.getChipId());
+}
+#elif defined(ESP_PLATFORM)
+String GetChipSerialId(){
+  uint64_t chipId = ESP.getEfuseMac();
+  unsigned long long1 = (unsigned long)((chipId & 0xFFFF0000) >> 16 );
+  unsigned long long2 = (unsigned long)((chipId & 0x0000FFFF));
+  return String(long1, HEX) + String(long2, HEX);
+}
+#endif
+
 void APSettingsService::startAP() {
   Serial.println("Starting software access point");
-  auto ssidWithSerial = _settings.ssid + String(ESP.getChipId());
+  auto ssidWithSerial = _settings.ssid + GetChipSerialId();
   WiFi.softAP(ssidWithSerial.c_str(), _settings.password.c_str());
   WiFi.softAPConfig(local_ip, gateway, subnet);
   

@@ -16,6 +16,7 @@ class ProjectRouting extends Component {
           */
         }
         <AuthenticatedRoute exact path={`/${PROJECT_PATH}/monitor/*`} component={SwitchMonitorProject} />
+
         {
           /*
           * The redirect below caters for the default project route and redirecting invalid paths.

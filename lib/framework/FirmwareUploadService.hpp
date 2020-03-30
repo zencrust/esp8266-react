@@ -6,11 +6,15 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <WiFiUdp.h>
+#define STOP_UDP WiFiUDP::stopAll();
 #elif defined(ESP_PLATFORM)
 #include <Arduino.h>
 #include <WiFiUdp.h>
 #include <AsyncTCP.h>
 #include <WiFi.h>
+#include <Update.h>
+#define STOP_UDP 
+#define U_FS U_SPIFFS
 #endif
 
 #include <ESPAsyncWebServer.h>

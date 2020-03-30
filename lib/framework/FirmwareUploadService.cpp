@@ -33,7 +33,7 @@ void FirmwareUploadService::handleUpload(AsyncWebServerRequest* request,
                                          size_t len,
                                          bool final) {
   if (index == 0) {
-    WiFiUDP::stopAll();
+    STOP_UDP
     Serial.println("#__ Update: " + filename);
     auto command = filename == "spiffs.bin" ? U_FS : U_FLASH;
     uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;

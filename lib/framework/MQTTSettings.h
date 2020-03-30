@@ -4,6 +4,13 @@
 #include <AdminSettingsService.h>
 #include <PubSubClient.h>
 
+#ifdef ESP32
+  #define HOSTNAME WiFi.getHostname()
+#elif defined(ESP8266)
+  #define HOSTNAME WiFi.hostname()
+#endif
+
+
 // default
 #define MQTT_SETTINGS_SERVICE_DEFAULT_ENABLED false
 #define MQTT_SETTINGS_SERVICE_DEFAULT_SERVER "smartdashboard.local"
