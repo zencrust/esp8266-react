@@ -1,31 +1,39 @@
 import * as H from 'history';
 
 import history from '../history';
-import { PROJECT_PATH } from '../api';
+import { Features } from '../features/types';
+import { getDefaultRoute } from '../AppRouting';
 
 export const ACCESS_TOKEN = 'access_token';
-export const LOGIN_PATHNAME = 'loginPathname';
-export const LOGIN_SEARCH = 'loginSearch';
+export const SIGN_IN_PATHNAME = 'signInPathname';
+export const SIGN_IN_SEARCH = 'signInSearch';
+
+/**
+ * Fallback to sessionStorage if localStorage is absent. WebView may not have local storage enabled.
+ */
+export function getStorage() {
+  return localStorage || sessionStorage;
+}
 
 export function storeLoginRedirect(location?: H.Location) {
   if (location) {
-    localStorage.setItem(LOGIN_PATHNAME, location.pathname);
-    localStorage.setItem(LOGIN_SEARCH, location.search);
+    getStorage().setItem(SIGN_IN_PATHNAME, location.pathname);
+    getStorage().setItem(SIGN_IN_SEARCH, location.search);
   }
 }
 
 export function clearLoginRedirect() {
-  localStorage.removeItem(LOGIN_PATHNAME);
-  localStorage.removeItem(LOGIN_SEARCH);
+  getStorage().removeItem(SIGN_IN_PATHNAME);
+  getStorage().removeItem(SIGN_IN_SEARCH);
 }
 
-export function fetchLoginRedirect(): H.LocationDescriptorObject {
-  const loginPathname = localStorage.getItem(LOGIN_PATHNAME);
-  const loginSearch = localStorage.getItem(LOGIN_SEARCH);
+export function fetchLoginRedirect(features: Features): H.LocationDescriptorObject {
+  const signInPathname = getStorage().getItem(SIGN_IN_PATHNAME);
+  const signInSearch = getStorage().getItem(SIGN_IN_SEARCH);
   clearLoginRedirect();
   return {
-    pathname: loginPathname || `/${PROJECT_PATH}/`,
-    search: (loginPathname && loginSearch) || undefined
+    pathname: signInPathname || getDefaultRoute(features),
+    search: (signInPathname && signInSearch) || undefined
   };
 }
 
@@ -33,7 +41,7 @@ export function fetchLoginRedirect(): H.LocationDescriptorObject {
  * Wraps the normal fetch routene with one with provides the access token if present.
  */
 export function authorizedFetch(url: RequestInfo, params?: RequestInit): Promise<Response> {
-  const accessToken = localStorage.getItem(ACCESS_TOKEN);
+  const accessToken = getStorage().getItem(ACCESS_TOKEN);
   if (accessToken) {
     params = params || {};
     params.credentials = 'include';
@@ -46,12 +54,45 @@ export function authorizedFetch(url: RequestInfo, params?: RequestInit): Promise
 }
 
 /**
+ * fetch() does not yet support upload progress, this wrapper allows us to configure the xhr request 
+ * for a single file upload and takes care of adding the Authroization header and redirecting on 
+ * authroization errors as we do for normal fetch operations.
+ */
+export function redirectingAuthorizedUpload(xhr: XMLHttpRequest, url: string, file: File, onProgress: (event: ProgressEvent<EventTarget>) => void): Promise<void> {
+  return new Promise((resolve, reject) => {
+    xhr.open("POST", url, true);
+    const accessToken = getStorage().getItem(ACCESS_TOKEN);
+    if (accessToken) {
+      xhr.withCredentials = true;
+      xhr.setRequestHeader("Authorization", 'Bearer ' + accessToken);
+    }
+    xhr.upload.onprogress = onProgress;
+    xhr.onload = function () {
+      if (xhr.status === 401 || xhr.status === 403) {
+        history.push("/unauthorized");
+      } else {
+        resolve();
+      }
+    };
+    xhr.onerror = function (event: ProgressEvent<EventTarget>) {
+      reject(new DOMException('Error', 'UploadError'));
+    };
+    xhr.onabort = function () {
+      reject(new DOMException('Aborted', 'AbortError'));
+    };
+    const formData = new FormData();
+    formData.append('file', file);
+    xhr.send(formData);
+  });
+}
+
+/**
  * Wraps the normal fetch routene which redirects on 401 response.
  */
 export function redirectingAuthorizedFetch(url: RequestInfo, params?: RequestInit): Promise<Response> {
   return new Promise<Response>((resolve, reject) => {
     authorizedFetch(url, params).then(response => {
-      if (response.status === 401) {
+      if (response.status === 401 || response.status === 403) {
         history.push("/unauthorized");
       } else {
         resolve(response);
@@ -60,4 +101,14 @@ export function redirectingAuthorizedFetch(url: RequestInfo, params?: RequestIni
       reject(error);
     });
   });
+}
+
+export function addAccessTokenParameter(url: string) {
+  const accessToken = getStorage().getItem(ACCESS_TOKEN);
+  if (!accessToken) {
+    return url;
+  }
+  const parsedUrl = new URL(url);
+  parsedUrl.searchParams.set(ACCESS_TOKEN, accessToken);
+  return parsedUrl.toString();
 }

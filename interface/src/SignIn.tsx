@@ -11,7 +11,7 @@ import {PasswordValidator} from './components';
 import { PROJECT_NAME, SIGN_IN_ENDPOINT } from './api';
 
 const styles = (theme: Theme) => createStyles({
-  loginPage: {
+  signInPage: {
     display: "flex",
     height: "100vh",
     margin: "auto",
@@ -20,7 +20,7 @@ const styles = (theme: Theme) => createStyles({
     flexDirection: "column",
     maxWidth: theme.breakpoints.values.sm
   },
-  loginPanel: {
+  signInPanel: {
     textAlign: "center",
     padding: theme.spacing(2),
     paddingTop: "200px",
@@ -39,17 +39,17 @@ const styles = (theme: Theme) => createStyles({
   }
 });
 
-type SignInPageProps = WithSnackbarProps & WithStyles<typeof styles> & AuthenticationContextProps;
+type SignInProps = WithSnackbarProps & WithStyles<typeof styles> & AuthenticationContextProps;
 
-interface SignInPageState {
+interface SignInState {
   username: string,
   password: string,
   processing: boolean
 }
 
-class SignInPage extends Component<SignInPageProps, SignInPageState> {
+class SignIn extends Component<SignInProps, SignInState> {
 
-  constructor(props: SignInPageProps) {
+  constructor(props: SignInProps) {
     super(props);
     this.state = {
       username: '',
@@ -81,7 +81,7 @@ class SignInPage extends Component<SignInPageProps, SignInPageState> {
         if (response.status === 200) {
           return response.json();
         } else if (response.status === 401) {
-          throw Error("Invalid login details.");
+          throw Error("Invalid credentials.");
         } else {
           throw Error("Invalid status code: " + response.status);
         }
@@ -100,8 +100,8 @@ class SignInPage extends Component<SignInPageProps, SignInPageState> {
     const { username, password, processing } = this.state;
     const { classes } = this.props;
     return (
-      <div className={classes.loginPage}>
-        <Paper className={classes.loginPanel}>
+      <div className={classes.signInPage}>
+        <Paper className={classes.signInPanel}>
           <Typography variant="h4">{PROJECT_NAME}</Typography>
           <ValidatorForm onSubmit={this.onSubmit}>
             <TextValidator
@@ -115,6 +115,10 @@ class SignInPage extends Component<SignInPageProps, SignInPageState> {
               value={username}
               onChange={this.updateInputElement}
               margin="normal"
+              inputProps={{
+                autoCapitalize: "none",
+                autoCorrect: "off",
+              }}
             />
             <PasswordValidator
               disabled={processing}
@@ -140,4 +144,4 @@ class SignInPage extends Component<SignInPageProps, SignInPageState> {
 
 }
 
-export default withAuthenticationContext(withSnackbar(withStyles(styles)(SignInPage)));
+export default withAuthenticationContext(withSnackbar(withStyles(styles)(SignIn)));

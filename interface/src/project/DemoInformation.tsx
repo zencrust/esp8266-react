@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Typography, TableRow, TableBody, TableCell, TableHead, Table, Box } from '@material-ui/core';
+import { Typography, Box, List, ListItem, ListItemText } from '@material-ui/core';
 import { SectionContent } from '../components';
 
 class DemoInformation extends Component {
@@ -8,71 +8,61 @@ class DemoInformation extends Component {
     return (
       <SectionContent title='Demo Information' titleGutter>
         <Typography variant="body1" paragraph>
-          This simple demo project allows you to control the blink speed of the built-in LED.
+          This simple demo project allows you to control the built-in LED.
           It demonstrates how the esp8266-react framework may be extended for your own IoT project.
         </Typography>
         <Typography variant="body1" paragraph>
-          It is recommended that you keep your project interface code under the 'project' directory.
+          It is recommended that you keep your project interface code under the project directory.
           This serves to isolate your project code from the from the rest of the user interface which should
           simplify merges should you wish to update your project with future framework changes.
         </Typography>
         <Typography variant="body1" paragraph>
-          The demo project interface code stored in the interface/project directory:
-        </Typography>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>
-                File
-              </TableCell>
-              <TableCell>
-                Description
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            <TableRow>
-              <TableCell>
-                ProjectMenu.tsx
-              </TableCell>
-              <TableCell>
-                You can add your project's screens to the side bar here.
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>
-                ProjectRouting.tsx
-              </TableCell>
-              <TableCell>
-                The routing which controls the screens of your project.
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>
-                DemoProject.tsx
-              </TableCell>
-              <TableCell>
-                This screen, with tabs and tab routing.
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>
-                DemoInformation.tsx
-              </TableCell>
-              <TableCell>
-                The demo information page.
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>
-                DemoController.tsx
-              </TableCell>
-              <TableCell>
-                The demo controller tab, to control the built-in LED.
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
+          The demo project interface code is stored in the 'interface/src/project' directory:
+        </Typography>        
+        <List>
+          <ListItem>
+            <ListItemText
+              primary="ProjectMenu.tsx"
+              secondary="You can add your project's screens to the side bar here."
+            />
+          </ListItem>
+          <ListItem>
+            <ListItemText
+              primary="ProjectRouting.tsx"
+              secondary="The routing which controls the screens of your project."
+            />
+          </ListItem>
+          <ListItem>
+            <ListItemText
+              primary="DemoProject.tsx"
+              secondary="This screen, with tabs and tab routing."
+            />
+          </ListItem>
+          <ListItem>
+            <ListItemText
+              primary="DemoInformation.tsx"
+              secondary="The demo information page."
+            />
+          </ListItem>
+          <ListItem>
+            <ListItemText
+              primary="LightStateRestController.tsx"
+              secondary="A form which lets the user control the LED over a REST service."
+            />
+          </ListItem>
+          <ListItem>
+            <ListItemText
+              primary="LightStateWebSocketController.tsx"
+              secondary="A form which lets the user control and monitor the status of the LED over WebSockets."
+            />
+          </ListItem>
+          <ListItem>
+            <ListItemText
+              primary="LightMqttSettingsController.tsx"
+              secondary="A form which lets the user change the MQTT settings for MQTT based control of the LED."
+            />
+          </ListItem>
+        </List>
         <Box mt={2}>
           <Typography variant="body1">
             See the project <a href="https://github.com/rjwats/esp8266-react/">README</a> for a full description of the demo project.
