@@ -13,7 +13,7 @@ import SaveIcon from '@material-ui/icons/Save';
 import { RestFormProps, PasswordValidator, BlockFormControlLabel, FormActions, FormButton } from '../components';
 import { isIP, isHostname, optional } from '../validators';
 
-import { WiFiConnectionContext } from './WiFiConnectionContext';
+import { WiFiConnectionContext, WiFiConnectionContextValue } from './WiFiConnectionContext';
 import { isNetworkOpen, networkSecurityMode } from './WiFiSecurityModes';
 import { WiFiSettings } from './types';
 
@@ -24,15 +24,39 @@ class WiFiSettingsForm extends React.Component<WiFiStatusFormProps> {
   static contextType = WiFiConnectionContext;
   context!: React.ContextType<typeof WiFiConnectionContext>;
 
-  componentWillMount() {
+  constructor(props: WiFiStatusFormProps, context: WiFiConnectionContextValue) {
+    super(props);
+
+    const { selectedNetwork } = context;
+    if (selectedNetwork) {
+      const wifiSettings: WiFiSettings = {
+        ssid: selectedNetwork.ssid,
+        password: "",
+        hostname: props.data.hostname,
+        static_ip_config: false,
+      }
+      props.setData(wifiSettings);
+    }
+  }
+
+  componentDidMount() {
     ValidatorForm.addValidationRule('isIP', isIP);
     ValidatorForm.addValidationRule('isHostname', isHostname);
     ValidatorForm.addValidationRule('isOptionalIP', optional(isIP));
   }
 
+  deselectNetworkAndLoadData = () => {
+    this.context.deselectNetwork();
+    this.props.loadData();
+  }
+
+  componentWillUnmount() {
+    this.context.deselectNetwork();
+  }
+
   render() {
     const { selectedNetwork, deselectNetwork } = this.context;
-    const { data, handleValueChange, saveData, loadData } = this.props;
+    const { data, handleValueChange, saveData } = this.props;
     return (
       <ValidatorForm onSubmit={saveData} ref="WiFiSettingsForm">
         {
@@ -166,9 +190,6 @@ class WiFiSettingsForm extends React.Component<WiFiStatusFormProps> {
         <FormActions>
           <FormButton startIcon={<SaveIcon />} variant="contained" color="primary" type="submit">
             Save
-          </FormButton>
-          <FormButton variant="contained" color="secondary" onClick={loadData}>
-            Reset
           </FormButton>
         </FormActions>
       </ValidatorForm>

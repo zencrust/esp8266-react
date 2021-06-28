@@ -18,36 +18,32 @@ WiFiStatus::WiFiStatus(AsyncWebServer* server, SecurityManager* securityManager)
 
 #ifdef ESP32
 void WiFiStatus::onStationModeConnected(WiFiEvent_t event, WiFiEventInfo_t info) {
-  Serial.println("WiFi Connected.");
+  Serial.println(F("WiFi Connected."));
 }
 
 void WiFiStatus::onStationModeDisconnected(WiFiEvent_t event, WiFiEventInfo_t info) {
-  Serial.print("WiFi Disconnected. Reason code=");
+  Serial.print(F("WiFi Disconnected. Reason code="));
   Serial.println(info.disconnected.reason);
 }
 
 void WiFiStatus::onStationModeGotIP(WiFiEvent_t event, WiFiEventInfo_t info) {
-  Serial.print("WiFi Got IP. localIP=");
-  Serial.print(WiFi.localIP().toString());
-  Serial.print(", hostName=");
-  Serial.println(WiFi.getHostname());
+  Serial.printf_P(
+      PSTR("WiFi Got IP. localIP=%s, hostName=%s\r\n"), WiFi.localIP().toString().c_str(), WiFi.getHostname());
 }
 #elif defined(ESP8266)
 void WiFiStatus::onStationModeConnected(const WiFiEventStationModeConnected& event) {
-  Serial.print("WiFi Connected. SSID=");
+  Serial.print(F("WiFi Connected. SSID="));
   Serial.println(event.ssid);
 }
 
 void WiFiStatus::onStationModeDisconnected(const WiFiEventStationModeDisconnected& event) {
-  Serial.print("WiFi Disconnected. Reason code=");
+  Serial.print(F("WiFi Disconnected. Reason code="));
   Serial.println(event.reason);
 }
 
 void WiFiStatus::onStationModeGotIP(const WiFiEventStationModeGotIP& event) {
-  Serial.print("WiFi Got IP. localIP=");
-  Serial.print(event.ip);
-  Serial.print(", hostName=");
-  Serial.println(WiFi.hostname());
+  Serial.printf_P(
+      PSTR("WiFi Got IP. localIP=%s, hostName=%s\r\n"), event.ip.toString().c_str(), WiFi.hostname().c_str());
 }
 #endif
 
@@ -67,10 +63,10 @@ void WiFiStatus::wifiStatus(AsyncWebServerRequest* request) {
     root["gateway_ip"] = WiFi.gatewayIP().toString();
     IPAddress dnsIP1 = WiFi.dnsIP(0);
     IPAddress dnsIP2 = WiFi.dnsIP(1);
-    if (dnsIP1 != INADDR_NONE) {
+    if (IPUtils::isSet(dnsIP1)) {
       root["dns_ip_1"] = dnsIP1.toString();
     }
-    if (dnsIP2 != INADDR_NONE) {
+    if (IPUtils::isSet(dnsIP2)) {
       root["dns_ip_2"] = dnsIP2.toString();
     }
   }

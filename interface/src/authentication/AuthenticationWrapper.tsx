@@ -2,37 +2,21 @@ import * as React from 'react';
 import { withSnackbar, WithSnackbarProps } from 'notistack';
 import jwtDecode from 'jwt-decode';
 
-import CircularProgress from '@material-ui/core/CircularProgress';
-import Typography from '@material-ui/core/Typography';
-import { withStyles, Theme, createStyles, WithStyles } from '@material-ui/core/styles';
-
 import history from '../history'
 import { VERIFY_AUTHORIZATION_ENDPOINT } from '../api';
-import { ACCESS_TOKEN, authorizedFetch } from './Authentication';
-import { AuthenticationContext, Me } from './AuthenticationContext';
+import { ACCESS_TOKEN, authorizedFetch, getStorage } from './Authentication';
+import { AuthenticationContext, AuthenticationContextValue, Me } from './AuthenticationContext';
+import FullScreenLoading from '../components/FullScreenLoading';
+import { withFeatures, WithFeaturesProps } from '../features/FeaturesContext';
 
-export const decodeMeJWT = (accessToken: string): Me => jwtDecode(accessToken);
-
-const styles = (theme: Theme) => createStyles({
-  loadingPanel: {
-    padding: theme.spacing(2),
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    height: "100vh",
-    flexDirection: "column"
-  },
-  progress: {
-    margin: theme.spacing(4),
-  }
-});
+export const decodeMeJWT = (accessToken: string): Me => jwtDecode(accessToken) as Me;
 
 interface AuthenticationWrapperState {
-  context: AuthenticationContext;
+  context: AuthenticationContextValue;
   initialized: boolean;
 }
 
-type AuthenticationWrapperProps = WithSnackbarProps & WithStyles<typeof styles>;
+type AuthenticationWrapperProps = WithSnackbarProps & WithFeaturesProps;
 
 class AuthenticationWrapper extends React.Component<AuthenticationWrapperProps, AuthenticationWrapperState> {
 
@@ -69,19 +53,17 @@ class AuthenticationWrapper extends React.Component<AuthenticationWrapperProps, 
   }
 
   renderContentLoading() {
-    const { classes } = this.props;
     return (
-      <div className={classes.loadingPanel}>
-        <CircularProgress className={classes.progress} size={100} />
-        <Typography variant="h4" >
-          Loading...
-        </Typography>
-      </div>
+      <FullScreenLoading />
     );
   }
 
   refresh = () => {
-    const accessToken = localStorage.getItem(ACCESS_TOKEN)
+    if (!this.props.features.security) {
+      this.setState({ initialized: true, context: { ...this.state.context, me: { admin: true, username: "admin" } } });
+      return;
+    }
+    const accessToken = getStorage().getItem(ACCESS_TOKEN)
     if (accessToken) {
       authorizedFetch(VERIFY_AUTHORIZATION_ENDPOINT)
         .then(response => {
@@ -100,7 +82,7 @@ class AuthenticationWrapper extends React.Component<AuthenticationWrapperProps, 
 
   signIn = (accessToken: string) => {
     try {
-      localStorage.setItem(ACCESS_TOKEN, accessToken);
+      getStorage().setItem(ACCESS_TOKEN, accessToken);
       const me: Me = decodeMeJWT(accessToken);
       this.setState({ context: { ...this.state.context, me } });
       this.props.enqueueSnackbar(`Logged in as ${me.username}`, { variant: 'success' });
@@ -111,7 +93,7 @@ class AuthenticationWrapper extends React.Component<AuthenticationWrapperProps, 
   }
 
   signOut = () => {
-    localStorage.removeItem(ACCESS_TOKEN);
+    getStorage().removeItem(ACCESS_TOKEN);
     this.setState({
       context: {
         ...this.state.context,
@@ -124,4 +106,4 @@ class AuthenticationWrapper extends React.Component<AuthenticationWrapperProps, 
 
 }
 
-export default withStyles(styles)(withSnackbar(AuthenticationWrapper))
+export default withFeatures(withSnackbar(AuthenticationWrapper))

@@ -2,7 +2,8 @@ import React from 'react';
 
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import { Button, LinearProgress, Typography } from '@material-ui/core';
-import { RestControllerProps } from './RestController';
+
+import { RestControllerProps } from '.';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -34,7 +35,7 @@ export default function RestFormLoader<D>(props: RestFormLoaderProps<D>) {
       <div className={classes.loadingSettings}>
         <LinearProgress className={classes.loadingSettingsDetails} />
         <Typography variant="h6" className={classes.loadingSettingsDetails}>
-          Loading...
+          Loading&hellip;
         </Typography>
       </div>
     );
@@ -46,7 +47,7 @@ export default function RestFormLoader<D>(props: RestFormLoaderProps<D>) {
           {errorMessage}
         </Typography>
         <Button variant="contained" color="secondary" className={classes.button} onClick={loadData}>
-          Reset
+          Retry
         </Button>
       </div>
     );

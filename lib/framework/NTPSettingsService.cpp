@@ -1,7 +1,15 @@
 #include <NTPSettingsService.h>
 
 NTPSettingsService::NTPSettingsService(AsyncWebServer* server, FS* fs, SecurityManager* securityManager) :
-    AdminSettingsService(server, fs, securityManager, NTP_SETTINGS_SERVICE_PATH, NTP_SETTINGS_FILE) {
+    _httpEndpoint(NTPSettings::read, NTPSettings::update, this, server, NTP_SETTINGS_SERVICE_PATH, securityManager),
+    _fsPersistence(NTPSettings::read, NTPSettings::update, this, fs, NTP_SETTINGS_FILE),
+    _timeHandler(TIME_PATH,
+                 securityManager->wrapCallback(
+                     std::bind(&NTPSettingsService::configureTime, this, std::placeholders::_1, std::placeholders::_2),
+                     AuthenticationPredicates::IS_ADMIN)) {
+  _timeHandler.setMethod(HTTP_POST);
+  _timeHandler.setMaxContentLength(MAX_TIME_SIZE);
+  server->addHandler(&_timeHandler);
 #ifdef ESP32
   WiFi.onEvent(
       std::bind(&NTPSettingsService::onStationModeDisconnected, this, std::placeholders::_1, std::placeholders::_2),
@@ -14,70 +22,69 @@ NTPSettingsService::NTPSettingsService(AsyncWebServer* server, FS* fs, SecurityM
   _onStationModeGotIPHandler =
       WiFi.onStationModeGotIP(std::bind(&NTPSettingsService::onStationModeGotIP, this, std::placeholders::_1));
 #endif
+  addUpdateHandler([&](const String& originId) { configureNTP(); }, false);
 }
 
-NTPSettingsService::~NTPSettingsService() {
-}
-
-void NTPSettingsService::loop() {
-  // detect when we need to re-configure NTP and do it in the main loop
-  if (_reconfigureNTP) {
-    _reconfigureNTP = false;
-    configureNTP();
-  }
-}
-
-void NTPSettingsService::readFromJsonObject(JsonObject& root) {
-  _settings.enabled = root["enabled"] | NTP_SETTINGS_SERVICE_DEFAULT_ENABLED;
-  _settings.server = root["server"] | NTP_SETTINGS_SERVICE_DEFAULT_SERVER;
-  _settings.tzLabel = root["tz_label"] | NTP_SETTINGS_SERVICE_DEFAULT_TIME_ZONE_LABEL;
-  _settings.tzFormat = root["tz_format"] | NTP_SETTINGS_SERVICE_DEFAULT_TIME_ZONE_FORMAT;
-}
-
-void NTPSettingsService::writeToJsonObject(JsonObject& root) {
-  root["enabled"] = _settings.enabled;
-  root["server"] = _settings.server;
-  root["tz_label"] = _settings.tzLabel;
-  root["tz_format"] = _settings.tzFormat;
-}
-
-void NTPSettingsService::onConfigUpdated() {
-  _reconfigureNTP = true;
+void NTPSettingsService::begin() {
+  _fsPersistence.readFromFS();
+  configureNTP();
 }
 
 #ifdef ESP32
 void NTPSettingsService::onStationModeGotIP(WiFiEvent_t event, WiFiEventInfo_t info) {
-  Serial.println("Got IP address, starting NTP Synchronization");
-  _reconfigureNTP = true;
+  Serial.println(F("Got IP address, starting NTP Synchronization"));
+  configureNTP();
 }
 
 void NTPSettingsService::onStationModeDisconnected(WiFiEvent_t event, WiFiEventInfo_t info) {
-  Serial.println("WiFi connection dropped, stopping NTP.");
-  _reconfigureNTP = false;
-  sntp_stop();
+  Serial.println(F("WiFi connection dropped, stopping NTP."));
+  configureNTP();
 }
 #elif defined(ESP8266)
 void NTPSettingsService::onStationModeGotIP(const WiFiEventStationModeGotIP& event) {
-  Serial.println("Got IP address, starting NTP Synchronization");
-  _reconfigureNTP = true;
+  Serial.println(F("Got IP address, starting NTP Synchronization"));
+  configureNTP();
 }
 
 void NTPSettingsService::onStationModeDisconnected(const WiFiEventStationModeDisconnected& event) {
-  Serial.println("WiFi connection dropped, stopping NTP.");
-  _reconfigureNTP = false;
-  sntp_stop();
+  Serial.println(F("WiFi connection dropped, stopping NTP."));
+  configureNTP();
 }
 #endif
 
 void NTPSettingsService::configureNTP() {
-  Serial.println("Configuring NTP...");
-  if (_settings.enabled) {
+  if (WiFi.isConnected() && _state.enabled) {
+    Serial.println(F("Starting NTP..."));
 #ifdef ESP32
-    configTzTime(_settings.tzFormat.c_str(), _settings.server.c_str());
+    configTzTime(_state.tzFormat.c_str(), _state.server.c_str());
 #elif defined(ESP8266)
-    configTime(_settings.tzFormat.c_str(), _settings.server.c_str());
+    configTime(_state.tzFormat.c_str(), _state.server.c_str());
 #endif
   } else {
+#ifdef ESP32
+    setenv("TZ", _state.tzFormat.c_str(), 1);
+    tzset();
+#elif defined(ESP8266)
+    setTZ(_state.tzFormat.c_str());
+#endif
     sntp_stop();
   }
+}
+
+void NTPSettingsService::configureTime(AsyncWebServerRequest* request, JsonVariant& json) {
+  if (!sntp_enabled() && json.is<JsonObject>()) {
+    struct tm tm = {0};
+    String timeLocal = json["local_time"];
+    char* s = strptime(timeLocal.c_str(), "%Y-%m-%dT%H:%M:%S", &tm);
+    if (s != nullptr) {
+      time_t time = mktime(&tm);
+      struct timeval now = {.tv_sec = time};
+      settimeofday(&now, nullptr);
+      AsyncWebServerResponse* response = request->beginResponse(200);
+      request->send(response);
+      return;
+    }
+  }
+  AsyncWebServerResponse* response = request->beginResponse(400);
+  request->send(response);
 }

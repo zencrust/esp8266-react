@@ -28,7 +28,7 @@ class NTPSettingsForm extends React.Component<NTPSettingsFormProps> {
   }
 
   render() {
-    const { data, handleValueChange, saveData, loadData } = this.props;
+    const { data, handleValueChange, saveData } = this.props;
     return (
       <ValidatorForm onSubmit={saveData}>
         <BlockFormControlLabel
@@ -56,11 +56,10 @@ class NTPSettingsForm extends React.Component<NTPSettingsFormProps> {
           validators={['required']}
           errorMessages={['Time zone is required']}
           name="tz_label"
-          labelId="tz_label"
           label="Time zone"
           fullWidth
           variant="outlined"
-          native
+          native="true"
           value={selectedTimeZone(data.tz_label, data.tz_format)}
           onChange={this.changeTimeZone}
           margin="normal"
@@ -71,9 +70,6 @@ class NTPSettingsForm extends React.Component<NTPSettingsFormProps> {
         <FormActions>
           <FormButton startIcon={<SaveIcon />} variant="contained" color="primary" type="submit">
             Save
-          </FormButton>
-          <FormButton variant="contained" color="secondary" onClick={loadData}>
-            Reset
           </FormButton>
         </FormActions>
       </ValidatorForm>

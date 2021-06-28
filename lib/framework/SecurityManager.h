@@ -1,11 +1,13 @@
 #ifndef SecurityManager_h
 #define SecurityManager_h
 
+#include <Features.h>
 #include <ArduinoJsonJWT.h>
 #include <ESPAsyncWebServer.h>
+#include <AsyncJson.h>
 #include <list>
 
-#define DEFAULT_JWT_SECRET "esp8266-react"
+#define ACCESS_TOKEN_PARAMATER "access_token"
 
 #define AUTHORIZATION_HEADER "Authorization"
 #define AUTHORIZATION_HEADER_PREFIX "Bearer "
@@ -56,26 +58,40 @@ class AuthenticationPredicates {
 
 class SecurityManager {
  public:
+#if FT_ENABLED(FT_SECURITY)
   /*
    * Authenticate, returning the user if found
    */
-  virtual Authentication authenticate(String username, String password) = 0;
-
-  /*
-   * Check the request header for the Authorization token
-   */
-  virtual Authentication authenticateRequest(AsyncWebServerRequest* request) = 0;
+  virtual Authentication authenticate(const String& username, const String& password) = 0;
 
   /*
    * Generate a JWT for the user provided
    */
   virtual String generateJWT(User* user) = 0;
 
+#endif
+
+  /*
+   * Check the request header for the Authorization token
+   */
+  virtual Authentication authenticateRequest(AsyncWebServerRequest* request) = 0;
+
+  /**
+   * Filter a request with the provided predicate, only returning true if the predicate matches.
+   */
+  virtual ArRequestFilterFunction filterRequest(AuthenticationPredicate predicate) = 0;
+
   /**
    * Wrap the provided request to provide validation against an AuthenticationPredicate.
    */
   virtual ArRequestHandlerFunction wrapRequest(ArRequestHandlerFunction onRequest,
                                                AuthenticationPredicate predicate) = 0;
+
+  /**
+   * Wrap the provided json request callback to provide validation against an AuthenticationPredicate.
+   */
+  virtual ArJsonRequestHandlerFunction wrapCallback(ArJsonRequestHandlerFunction onRequest,
+                                                    AuthenticationPredicate predicate) = 0;
 };
 
 #endif  // end SecurityManager_h

@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import { ValidatorForm } from 'react-material-ui-form-validator';
 
-import { Table, TableBody, TableCell, TableHead, TableFooter, TableRow } from '@material-ui/core';
+import { Table, TableBody, TableCell, TableHead, TableFooter, TableRow, withWidth, WithWidthProps, isWidthDown } from '@material-ui/core';
 import { Box, Button, Typography, } from '@material-ui/core';
 
 import EditIcon from '@material-ui/icons/Edit';
@@ -13,7 +13,7 @@ import SaveIcon from '@material-ui/icons/Save';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
 
 import { withAuthenticatedContext, AuthenticatedContextProps } from '../authentication';
-import { RestFormProps, FormActions, FormButton } from '../components';
+import { RestFormProps, FormActions, FormButton, extractEventValue } from '../components';
 
 import UserForm from './UserForm';
 import { SecuritySettings, User } from './types';
@@ -28,7 +28,7 @@ function compareUsers(a: User, b: User) {
   return 0;
 }
 
-type ManageUsersFormProps = RestFormProps<SecuritySettings> & AuthenticatedContextProps;
+type ManageUsersFormProps = RestFormProps<SecuritySettings> & AuthenticatedContextProps & WithWidthProps;
 
 type ManageUsersFormState = {
   creating: boolean;
@@ -93,12 +93,8 @@ class ManageUsersForm extends React.Component<ManageUsersFormProps, ManageUsersF
   };
 
   handleUserValueChange = (name: keyof User) => (event: React.ChangeEvent<HTMLInputElement>) => {
-    this.setState({ user: { ...this.state.user!, [name]: event.target.value } });
+    this.setState({ user: { ...this.state.user!, [name]: extractEventValue(event) } });
   };
-
-  handleUserCheckboxChange = (name: keyof User) => (event: React.ChangeEvent<HTMLInputElement>) => {
-    this.setState({ user: { ...this.state.user!, [name]: event.target.checked } });
-  }
 
   onSubmit = () => {
     this.props.saveData();
@@ -106,12 +102,12 @@ class ManageUsersForm extends React.Component<ManageUsersFormProps, ManageUsersF
   }
 
   render() {
-    const { data, loadData } = this.props;
+    const { width, data } = this.props;
     const { user, creating } = this.state;
     return (
       <Fragment>
         <ValidatorForm onSubmit={this.onSubmit}>
-          <Table size="small">
+          <Table size="small" padding={isWidthDown('xs', width!) ? "none" : "default"}>
             <TableHead>
               <TableRow>
                 <TableCell>Username</TableCell>
@@ -141,12 +137,12 @@ class ManageUsersForm extends React.Component<ManageUsersFormProps, ManageUsersF
                 </TableRow>
               ))}
             </TableBody>
-            <TableFooter>
+            <TableFooter >
               <TableRow>
                 <TableCell colSpan={2} />
-                <TableCell align="center">
+                <TableCell align="center" padding="default">
                   <Button startIcon={<PersonAddIcon />} variant="contained" color="secondary" onClick={this.createUser}>
-                    Add User
+                    Add
                   </Button>
                 </TableCell>
               </TableRow>
@@ -154,18 +150,17 @@ class ManageUsersForm extends React.Component<ManageUsersFormProps, ManageUsersF
           </Table>
           {
             this.noAdminConfigured() &&
-            <Typography component="div" variant="body1">
+            (
               <Box bgcolor="error.main" color="error.contrastText" p={2} mt={2} mb={2}>
-                You must have at least one admin user configured.
+                <Typography variant="body1">
+                  You must have at least one admin user configured.
+                </Typography>
               </Box>
-            </Typography>
+            )
           }
           <FormActions>
             <FormButton startIcon={<SaveIcon />} variant="contained" color="primary" type="submit" disabled={this.noAdminConfigured()}>
               Save
-            </FormButton>
-            <FormButton variant="contained" color="secondary" onClick={loadData}>
-              Reset
             </FormButton>
           </FormActions>
         </ValidatorForm>
@@ -186,4 +181,4 @@ class ManageUsersForm extends React.Component<ManageUsersFormProps, ManageUsersF
 
 }
 
-export default withAuthenticatedContext(ManageUsersForm);
+export default withAuthenticatedContext(withWidth()(ManageUsersForm));

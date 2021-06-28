@@ -5,26 +5,30 @@
 
 #ifdef ESP32
 #include <AsyncTCP.h>
-#include <SPIFFS.h>
 #include <WiFi.h>
 #elif defined(ESP8266)
 #include <ESP8266WiFi.h>
 #include <ESPAsyncTCP.h>
-#include <FS.h>
 #endif
 
+#include <FeaturesService.h>
 #include <APSettingsService.h>
 #include <APStatus.h>
 #include <AuthenticationService.h>
+#include <FactoryResetService.h>
+#include <MqttSettingsService.h>
+#include <MqttStatus.h>
 #include <NTPSettingsService.h>
 #include <NTPStatus.h>
 #include <OTASettingsService.h>
+#include <UploadFirmwareService.h>
 #include <RestartService.h>
 #include <SecuritySettingsService.h>
 #include <SystemStatus.h>
 #include <WiFiScanner.h>
 #include <WiFiSettingsService.h>
 #include <WiFiStatus.h>
+#include <ESPFS.h>
 
 #ifdef PROGMEM_WWW
 #include <WWWData.h>
@@ -32,49 +36,86 @@
 
 class ESP8266React {
  public:
-  ESP8266React(AsyncWebServer* server, FS* fs);
+  ESP8266React(AsyncWebServer* server);
 
   void begin();
   void loop();
+
+  FS* getFS() {
+    return &ESPFS;
+  }
 
   SecurityManager* getSecurityManager() {
     return &_securitySettingsService;
   }
 
-   SettingsService<SecuritySettings>* getSecuritySettingsService() {
+#if FT_ENABLED(FT_SECURITY)
+  StatefulService<SecuritySettings>* getSecuritySettingsService() {
     return &_securitySettingsService;
   }
+#endif
 
-  SettingsService<WiFiSettings>* getWiFiSettingsService() {
+  StatefulService<WiFiSettings>* getWiFiSettingsService() {
     return &_wifiSettingsService;
   }
 
-  SettingsService<APSettings>* getAPSettingsService() {
+  StatefulService<APSettings>* getAPSettingsService() {
     return &_apSettingsService;
   }
 
-  SettingsService<NTPSettings>* getNTPSettingsService() {
+#if FT_ENABLED(FT_NTP)
+  StatefulService<NTPSettings>* getNTPSettingsService() {
     return &_ntpSettingsService;
   }
+#endif
 
-  SettingsService<OTASettings>* getOTASettingsService() {
+#if FT_ENABLED(FT_OTA)
+  StatefulService<OTASettings>* getOTASettingsService() {
     return &_otaSettingsService;
+  }
+#endif
+
+#if FT_ENABLED(FT_MQTT)
+  StatefulService<MqttSettings>* getMqttSettingsService() {
+    return &_mqttSettingsService;
+  }
+
+  AsyncMqttClient* getMqttClient() {
+    return _mqttSettingsService.getMqttClient();
+  }
+#endif
+
+  void factoryReset() {
+    _factoryResetService.factoryReset();
   }
 
  private:
+  FeaturesService _featureService;
   SecuritySettingsService _securitySettingsService;
   WiFiSettingsService _wifiSettingsService;
-  APSettingsService _apSettingsService;
-  NTPSettingsService _ntpSettingsService;
-  OTASettingsService _otaSettingsService;
-  RestartService _restartService;
-
-  AuthenticationService _authenticationService;
-
   WiFiScanner _wifiScanner;
   WiFiStatus _wifiStatus;
-  NTPStatus _ntpStatus;
+  APSettingsService _apSettingsService;
   APStatus _apStatus;
+#if FT_ENABLED(FT_NTP)
+  NTPSettingsService _ntpSettingsService;
+  NTPStatus _ntpStatus;
+#endif
+#if FT_ENABLED(FT_OTA)
+  OTASettingsService _otaSettingsService;
+#endif
+#if FT_ENABLED(FT_UPLOAD_FIRMWARE)
+  UploadFirmwareService _uploadFirmwareService;
+#endif
+#if FT_ENABLED(FT_MQTT)
+  MqttSettingsService _mqttSettingsService;
+  MqttStatus _mqttStatus;
+#endif
+#if FT_ENABLED(FT_SECURITY)
+  AuthenticationService _authenticationService;
+#endif
+  RestartService _restartService;
+  FactoryResetService _factoryResetService;
   SystemStatus _systemStatus;
 };
 
